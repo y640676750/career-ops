@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.myootdai.com';
+const API_BASE_URL = 'https://purecv.cn';
 
 module.exports = {
   API_BASE_URL
