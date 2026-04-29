@@ -1,0 +1,9 @@
+{
+  "desc": "Career Ops mini program sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

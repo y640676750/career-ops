@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} - 简历</title>
+<style>
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('./fonts/space-grotesk-latin.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: url('./fonts/dm-sans-latin.woff2') format('woff2');
+    font-weight: 100 1000;
+    font-style: normal;
+    font-display: swap;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: #182033;
+    background: #f7f8fc;
+    font-size: 10.8px;
+    line-height: 1.58;
+  }
+  .page {
+    max-width: {{PAGE_WIDTH}};
+    margin: 0 auto;
+    padding: 8mm 9mm;
+  }
+  .hero {
+    background: linear-gradient(135deg, #4d5cf6 0%, #7b6dff 42%, #8dd9f8 100%);
+    border-radius: 24px;
+    color: #ffffff;
+    padding: 18px 20px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .hero-copy { flex: 1; min-width: 0; }
+  .hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+  .contact-item {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    font-size: 9.5px;
+    text-decoration: none;
+  }
+  .photo-box {
+    flex-shrink: 0;
+    width: 84px;
+    height: 104px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 22px rgba(30, 41, 59, 0.06);
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4d5cf6;
+    margin-bottom: 8px;
+  }
+  .summary-text, .job-role, .project-desc, .skill-item, .edu-desc, .cert-title {
+    color: #243047;
+  }
+  .summary-text strong,
+  .job li strong,
+  .project-desc strong,
+  .project-tech strong,
+  .edu-desc strong,
+  .skill-value strong {
+    font-weight: 800;
+    color: #182033;
+  }
+  .competencies-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .competency-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #eef0ff;
+    color: #5562f7;
+    font-size: 9.5px;
+    font-weight: 700;
+  }
+  .job, .project, .edu-item, .cert-item { margin-bottom: 10px; }
+  .job-header, .edu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .job-company, .project-title, .edu-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #182033;
+  }
+  .job-period, .project-tech, .edu-year, .cert-year, .edu-org, .cert-org {
+    color: #7a83a0;
+    font-size: 9.8px;
+  }
+  .job-role { margin-top: 4px; }
+  .job-kicker, .project-kicker, .edu-kicker, .cert-kicker {
+    margin-top: 4px;
+    font-size: 9.2px;
+    font-weight: 700;
+    color: #5562f7;
+  }
+  .job ul {
+    margin-top: 5px;
+    padding-left: 16px;
+  }
+  .job li {
+    margin-bottom: 4px;
+    color: #243047;
+  }
+  .project-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #eef0ff;
+    color: #5562f7;
+    font-size: 8.8px;
+    font-weight: 700;
+  }
+  .project-desc, .project-tech, .edu-desc {
+    margin-top: 5px;
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 12px;
+  }
+  .skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .skill-category { font-weight: 800; color: #182033; }
+  .skill-values { color: #4d5975; }
+  .skill-sep { color: #a0acd0; }
+  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>{{NAME}}</h1>
+      <div class="hero-meta">{{CONTACT_ITEMS}}</div>
+    </div>
+    <div class="photo-box">{{PHOTO_BOX_TEXT}}</div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_SUMMARY}}</div>
+    <div class="summary-text">{{SUMMARY_TEXT}}</div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_COMPETENCIES}}</div>
+    <div class="competencies-grid">{{COMPETENCIES}}</div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
+    {{CERTIFICATIONS}}
+  </section>
+
+  <section class="card">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    <div class="skills-grid">{{SKILLS}}</div>
+  </section>
+</div>
+</body>
+</html>

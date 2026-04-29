@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} - 简历</title>
+<style>
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('./fonts/space-grotesk-latin.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: url('./fonts/dm-sans-latin.woff2') format('woff2');
+    font-weight: 100 1000;
+    font-style: normal;
+    font-display: swap;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: #172033;
+    background: #ffffff;
+    font-size: 11px;
+    line-height: 1.58;
+  }
+  .page {
+    max-width: {{PAGE_WIDTH}};
+    margin: 0 auto;
+    padding: 8mm 10mm;
+  }
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 14px;
+    margin-bottom: 13px;
+    border-bottom: 1.5px solid #dce7fb;
+  }
+  .identity { flex: 1; min-width: 0; }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+  .contact-item {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #f4f7ff;
+    color: #4e5e7c;
+    font-size: 9.6px;
+    text-decoration: none;
+  }
+  .photo-box {
+    flex-shrink: 0;
+    width: 82px;
+    height: 102px;
+    border-radius: 18px;
+    border: 1.5px solid #dbe6fb;
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7d8ba4;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .section {
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2667d8;
+    margin-bottom: 8px;
+  }
+  .summary-text, .job-role, .project-desc, .skill-item, .edu-desc, .cert-title {
+    color: #2d3547;
+  }
+  .summary-text strong,
+  .job li strong,
+  .project-desc strong,
+  .project-tech strong,
+  .edu-desc strong,
+  .skill-value strong {
+    font-weight: 800;
+    color: #162033;
+  }
+  .competencies-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .competency-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #edf4ff;
+    border: 1px solid #dbe8ff;
+    color: #2667d8;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .job, .project, .edu-item, .cert-item {
+    margin-bottom: 11px;
+  }
+  .job-header, .edu-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .job-company, .project-title, .edu-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #162033;
+  }
+  .job-period, .project-tech, .edu-year, .cert-year, .edu-org, .cert-org {
+    color: #7a8394;
+    font-size: 9.8px;
+  }
+  .job-role {
+    margin-top: 4px;
+    font-size: 10px;
+  }
+  .job-kicker, .project-kicker, .edu-kicker, .cert-kicker {
+    margin-top: 4px;
+    font-size: 9.2px;
+    font-weight: 700;
+    color: #2667d8;
+  }
+  .job ul {
+    margin-top: 6px;
+    padding-left: 16px;
+  }
+  .job li {
+    margin-bottom: 4px;
+    color: #2d3547;
+  }
+  .project-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #edf4ff;
+    color: #2667d8;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .project-desc, .project-tech, .edu-desc {
+    margin-top: 5px;
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 14px;
+  }
+  .skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .skill-category {
+    font-weight: 800;
+    color: #162033;
+  }
+  .skill-values {
+    color: #4a556c;
+  }
+  .skill-sep {
+    color: #a0acc2;
+  }
+  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="header">
+    <div class="identity">
+      <h1>{{NAME}}</h1>
+      <div class="contact">{{CONTACT_ITEMS}}</div>
+    </div>
+    <div class="photo-box">{{PHOTO_BOX_TEXT}}</div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_SUMMARY}}</div>
+    <div class="summary-text">{{SUMMARY_TEXT}}</div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_COMPETENCIES}}</div>
+    <div class="competencies-grid">{{COMPETENCIES}}</div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
+    {{CERTIFICATIONS}}
+  </section>
+
+  <section class="section">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    <div class="skills-grid">{{SKILLS}}</div>
+  </section>
+</div>
+</body>
+</html>

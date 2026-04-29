@@ -1,0 +1,30 @@
+{
+  "name": "career-ops-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "start:api": "node server.js",
+    "start:worker": "node src/workers/worker.js",
+    "generate:codes": "node generateCodes.js",
+    "check": "node --check generateCodes.js && node --check server.js && node --check src/server.js && node --check src/app.js && node --check src/config/env.js && node --check src/data/activationStore.js && node --check src/data/database.js && node --check src/data/jobStore.js && node --check src/data/orderStore.js && node --check src/data/sessionStore.js && node --check src/middleware/sessionAuth.js && node --check src/queue/pdfQueue.js && node --check src/queue/redisConnection.js && node --check src/queue/resumeQueue.js && node --check src/routes/billingRoutes.js && node --check src/routes/pdfRoutes.js && node --check src/routes/redeemRoutes.js && node --check src/routes/resumeRoutes.js && node --check src/routes/wechatRoutes.js && node --check src/services/billingCatalog.js && node --check src/services/deepseekClient.js && node --check src/services/guidedResumeBuilder.js && node --check src/services/jdVisionService.js && node --check src/services/lowMemoryTaskQueue.js && node --check src/services/parserService.js && node --check src/services/pdfRenderer.js && node --check src/services/resumeCustomizer.js && node --check src/services/resumeJobProcessor.js && node --check src/services/resumeTemplateCatalog.js && node --check src/services/resumeTemplateMapper.js && node --check src/services/templateRenderer.js && node --check src/services/wechatAuth.js && node --check src/utils/fileStore.js && node --check src/utils/memory.js && node --check src/utils/uploadStore.js && node --check src/utils/workerLog.js && node --check src/workers/pdfWorker.js && node --check src/workers/resumeQueueWorker.js && node --check src/workers/worker.js"
+  },
+  "dependencies": {
+    "bullmq": "^5.16.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "ioredis": "^5.4.1",
+    "mammoth": "^1.12.0",
+    "multer": "^2.1.1",
+    "p-limit": "^7.3.0",
+    "pdf-parse": "^2.4.5",
+    "puppeteer": "^24.6.0",
+    "word-extractor": "^1.0.4"
+  }
+}

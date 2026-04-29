@@ -1,0 +1,294 @@
+<view class="app-container">
+  <scroll-view class="page-scroll" scroll-y="true" enable-flex="true">
+    <view class="page-inner">
+      <view class="header">
+        <text class="header-title">简历定制 Studio</text>
+        <button class="login-btn-header" bindtap="handleWechatLogin" loading="{{loginLoading}}" disabled="{{loginLoading}}">
+          <view class="header-user-icon">
+            <view class="header-user-head"></view>
+            <view class="header-user-body"></view>
+          </view>
+          <text>{{isLoggedIn ? '已连接' : '登录'}}</text>
+        </button>
+      </view>
+
+      <text class="section-title">1. 准备母本</text>
+      <view class="source-grid">
+        <view class="action-card" bindtap="handleChooseResumeFile">
+          <view class="icon-wrapper bg-blue">
+            <view class="upload-icon">
+              <view class="upload-icon-stem"></view>
+              <view class="upload-icon-arrow"></view>
+              <view class="upload-icon-tray"></view>
+            </view>
+          </view>
+          <text class="card-title">上传简历</text>
+          <text class="card-desc">PDF / Word</text>
+          <text class="card-meta">{{resumeStatusText}}</text>
+        </view>
+
+        <view class="action-card" bindtap="handleOpenBuilder">
+          <view class="icon-wrapper bg-purple">
+            <text class="builder-icon-mark">AI</text>
+          </view>
+          <text class="card-title">傻瓜式创建</text>
+          <text class="card-desc">填写基础信息</text>
+          <text class="card-meta">{{builderCardTag}}</text>
+        </view>
+      </view>
+
+      <text class="section-title">2. 排版风格</text>
+      <scroll-view class="template-scroll" scroll-x="true" show-scrollbar="false" enable-flex="true">
+        <view class="template-scroll-inner">
+          <block wx:for="{{templates}}" wx:key="id">
+            <view class="template-item {{item.selected ? 'template-item-active' : ''}}" bindtap="onSelectTemplate" data-template-id="{{item.id}}">
+              <view wx:if="{{item.selected}}" class="active-badge">
+                <text class="active-badge-mark">✓</text>
+              </view>
+              <view class="template-preview" style="{{item.cardStyle}}">
+                <view class="template-preview-bar" style="{{item.accentStyle}}"></view>
+                <view class="template-preview-block"></view>
+                <view class="template-preview-line"></view>
+                <view class="template-preview-line template-preview-line-short"></view>
+              </view>
+              <text class="template-name">{{item.name}}</text>
+            </view>
+          </block>
+
+          <view class="template-item template-more" bindtap="handleTemplateMore">
+            <view class="template-preview template-preview-more">
+              <text class="template-more-symbol">···</text>
+            </view>
+            <text class="template-name">全部</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <text class="section-title">3. 目标岗位</text>
+      <view class="job-section">
+        <view class="add-job-btn" bindtap="openJobSheet">
+          <text class="add-job-plus">+</text>
+          <text class="add-job-text">添加岗位</text>
+        </view>
+
+        <view wx:if="{{targetJobs.length}}" class="job-list-card">
+          <block wx:for="{{targetJobs}}" wx:key="id">
+            <view class="job-list-item">
+              <view class="job-dot"></view>
+              <view class="job-list-copy">
+                <text class="job-list-role">{{item.roleTitle || '未命名岗位'}}</text>
+                <text class="job-list-company">{{item.companyName || '待补充公司'}}</text>
+              </view>
+              <text class="job-list-edit" bindtap="handleEditJob" data-job-id="{{item.id}}">编辑</text>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <text class="section-title">4. 生成队列</text>
+      <view class="queue-card" bindtap="handleBatchGenerate">
+        <view class="queue-stats">
+          <block wx:for="{{queueStats}}" wx:key="label">
+            <view class="stat-badge stat-badge-{{item.tone}}">
+              <text class="stat-label">{{item.label}}</text>
+              <text class="stat-num">{{item.value}}</text>
+            </view>
+          </block>
+        </view>
+        <text class="queue-hint">{{queueSummaryText}}</text>
+      </view>
+
+      <text class="section-title">5. 我的简历</text>
+      <view class="result-card">
+        <block wx:if="{{generatedResults.length}}">
+          <block wx:for="{{generatedResults}}" wx:key="id">
+            <view class="result-item">
+              <view class="file-icon">P</view>
+              <view class="file-info">
+                <view class="file-name">{{item.companyName || '未命名公司'}} / {{item.roleTitle || item.fileName || '简历文件'}}</view>
+                <view class="file-time">
+                  <text>{{item.createdText || '刚刚生成'}}</text>
+                  <text wx:if="{{item.isAbstractResult}}" class="abstract-tag">整活版</text>
+                </view>
+              </view>
+              <view class="action-group">
+                <view class="action-btn preview-btn" bindtap="handlePreviewResult" data-url="{{item.downloadUrl}}" data-file-name="{{item.fileName}}">预览</view>
+                <view class="action-btn download-btn" bindtap="handleDownloadResult" data-url="{{item.downloadUrl}}" data-file-name="{{item.fileName}}">下载</view>
+                <view class="action-btn delete-btn" bindtap="handleDeleteResult" data-result-id="{{item.id}}" data-url="{{item.downloadUrl}}" data-file-name="{{item.fileName}}">删除</view>
+              </view>
+            </view>
+          </block>
+        </block>
+
+        <view wx:else class="empty-state">
+          <text>生成后会出现在这里</text>
+        </view>
+      </view>
+
+      <view class="bottom-placeholder"></view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-bar">
+    <view class="abstract-mode-toggle">
+      <text class="abstract-mode-label">开启“抽象整活”模式</text>
+      <switch
+        class="abstract-mode-switch"
+        color="#007AFF"
+        checked="{{isAbstractMode}}"
+        bindchange="handleAbstractModeChange"
+      />
+    </view>
+    <button class="generate-btn" bindtap="handleBatchGenerate" loading="{{batchGenerating}}" disabled="{{batchGenerating || !canGenerate}}">
+      {{batchButtonText}}
+    </button>
+  </view>
+
+  <view class="redeem-mask {{redeemVisible ? 'redeem-mask-show' : ''}}" bindtap="closeRedeemModal"></view>
+  <view class="redeem-sheet {{redeemVisible ? 'redeem-sheet-show' : ''}}" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <view class="redeem-header">
+      <view>
+        <text class="redeem-title">升级高级版</text>
+        <text class="redeem-subtitle">今日免费次数已达上限。添加主理人微信获取单日或包周激活码。</text>
+      </view>
+      <text class="redeem-close" bindtap="closeRedeemModal">关闭</text>
+    </view>
+    <view class="redeem-input-wrap">
+      <input class="redeem-input" controlled="{{true}}" value="{{redeemCode}}" bindinput="onRedeemCodeInput" placeholder="请输入激活码" placeholder-class="sheet-placeholder" maxlength="16" />
+    </view>
+    <button class="redeem-submit" bindtap="handleRedeemCode" loading="{{redeemBusy}}" disabled="{{redeemBusy}}">立即兑换</button>
+  </view>
+
+  <view class="sheet-mask {{jobSheetVisible ? 'sheet-mask-show' : ''}}" bindtap="closeJobSheet"></view>
+  <view class="job-sheet {{jobSheetVisible ? 'job-sheet-show' : ''}}">
+    <view class="sheet-handle"></view>
+    <view class="sheet-header">
+      <view>
+        <text class="sheet-title">{{isEditingJob ? '编辑岗位' : '添加岗位'}}</text>
+        <text class="sheet-subtitle">支持手动粘贴，也支持截图识别。</text>
+      </view>
+      <text class="sheet-close" bindtap="closeJobSheet">关闭</text>
+    </view>
+
+    <view class="sheet-field">
+      <text class="sheet-label">公司</text>
+      <input class="sheet-input" controlled="{{true}}" cursor-spacing="120" placeholder="输入目标公司" placeholder-class="sheet-placeholder" value="{{draftCompanyName}}" bindinput="onDraftCompanyInput" />
+    </view>
+
+    <view class="sheet-field">
+      <text class="sheet-label">岗位</text>
+      <input class="sheet-input" controlled="{{true}}" cursor-spacing="120" placeholder="输入岗位名称" placeholder-class="sheet-placeholder" value="{{draftRoleTitle}}" bindinput="onDraftRoleInput" />
+    </view>
+
+    <view class="sheet-field">
+      <view class="sheet-label-row">
+        <text class="sheet-label">岗位 JD</text>
+        <text class="sheet-upload-link" bindtap="handleChooseJdImage">上传 JD 截图</text>
+      </view>
+
+      <view class="jd-vision-card {{jdImageBusy ? 'jd-vision-card-busy' : ''}}" bindtap="handleChooseJdImage">
+        <view class="jd-vision-card-top">
+          <text class="jd-vision-pill jd-vision-pill-{{jdImageStatusTone}}">{{jdImageStatusText}}</text>
+          <text wx:if="{{jdImageBusy}}" class="jd-vision-link" catchtap="handleCancelJdVision">取消识别</text>
+          <text wx:else class="jd-vision-link">重新选择</text>
+        </view>
+        <text class="jd-vision-name">{{jdImageFileName || '上传截图自动识别岗位信息'}}</text>
+        <text class="jd-vision-hint">{{jdImageHelperText}}</text>
+      </view>
+
+      <view wx:if="{{jdVisionAutoFillVisible}}" class="jd-vision-success">
+        <view class="jd-vision-success-top">
+          <text class="jd-vision-success-title">{{jdVisionAutoFillTitle}}</text>
+          <text class="jd-vision-success-badge">已回填</text>
+        </view>
+        <view class="jd-vision-success-chips">
+          <text wx:if="{{draftCompanyName}}" class="jd-vision-success-chip">{{draftCompanyName}}</text>
+          <text wx:if="{{draftRoleTitle}}" class="jd-vision-success-chip">{{draftRoleTitle}}</text>
+        </view>
+        <text class="jd-vision-success-copy">{{jdVisionAutoFillSummary}}</text>
+      </view>
+
+      <textarea class="sheet-textarea" cursor-spacing="120" placeholder="粘贴岗位描述" placeholder-class="sheet-placeholder" value="{{draftJobDescription}}" bindinput="onDraftJobDescriptionInput"></textarea>
+    </view>
+
+    <button class="sheet-submit" bindtap="confirmAddJob">{{isEditingJob ? '更新岗位' : '确认加入列表'}}</button>
+  </view>
+
+  <view class="builder-mask {{builderVisible ? 'builder-mask-show' : ''}}" bindtap="closeBuilder"></view>
+  <view class="builder-sheet {{builderVisible ? 'builder-sheet-show' : ''}}">
+    <view class="builder-header">
+      <view>
+        <text class="builder-title">傻瓜式创建简历</text>
+        <text class="builder-subtitle">几步填写，AI 自动整理成专业母本。</text>
+      </view>
+      <text class="builder-close" bindtap="closeBuilder">关闭</text>
+    </view>
+
+    <view class="builder-steps">
+      <block wx:for="{{builderSteps}}" wx:key="key">
+        <view class="builder-step {{item.current ? 'builder-step-current' : ''}} {{item.done ? 'builder-step-done' : ''}}">
+          <text class="builder-step-index">{{item.index}}</text>
+          <text class="builder-step-label">{{item.label}}</text>
+        </view>
+      </block>
+    </view>
+
+    <scroll-view class="builder-scroll" scroll-y="true" enable-flex="true">
+      <view class="builder-body">
+        <text class="builder-section-title">{{builderStepTitle}}</text>
+        <text class="builder-section-hint">{{builderStepHint}}</text>
+
+        <view wx:if="{{isBuilderStepBasic}}" class="builder-field-stack">
+          <view class="builder-field">
+            <text class="builder-label">姓名</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderName" bindinput="onBuilderFieldInput" value="{{builderName}}" placeholder="例如：张三" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">意向岗位</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderTargetRole" bindinput="onBuilderFieldInput" value="{{builderTargetRole}}" placeholder="例如：产品运营 / 后端开发" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">联系方式</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderContact" bindinput="onBuilderFieldInput" value="{{builderContact}}" placeholder="手机号、微信或邮箱" placeholder-class="sheet-placeholder" />
+          </view>
+        </view>
+
+        <view wx:if="{{isBuilderStepEducation}}" class="builder-field-stack">
+          <view class="builder-field">
+            <text class="builder-label">学校</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderEducationSchool" bindinput="onBuilderFieldInput" value="{{builderEducationSchool}}" placeholder="例如：华东师范大学" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">专业</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderEducationMajor" bindinput="onBuilderFieldInput" value="{{builderEducationMajor}}" placeholder="例如：市场营销" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">毕业年份</text>
+            <input class="builder-input" controlled="{{true}}" type="number" data-field="builderEducationYear" bindinput="onBuilderFieldInput" value="{{builderEducationYear}}" placeholder="例如：2024" placeholder-class="sheet-placeholder" />
+          </view>
+        </view>
+
+        <view wx:if="{{isBuilderStepStory}}" class="builder-field-stack">
+          <view class="builder-field">
+            <text class="builder-label">公司 / 项目</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderStoryTitle" bindinput="onBuilderFieldInput" value="{{builderStoryTitle}}" placeholder="例如：某互联网公司" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">担任角色</text>
+            <input class="builder-input" controlled="{{true}}" data-field="builderStoryRole" bindinput="onBuilderFieldInput" value="{{builderStoryRole}}" placeholder="例如：运营实习生" placeholder-class="sheet-placeholder" />
+          </view>
+          <view class="builder-field">
+            <text class="builder-label">你做了什么</text>
+            <textarea class="builder-textarea" data-field="builderStoryText" bindinput="onBuilderFieldInput" value="{{builderStoryText}}" placeholder="有经历就写几句；没有也可以留空。" placeholder-class="sheet-placeholder"></textarea>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="builder-footer">
+      <button class="builder-secondary-button" bindtap="handleBuilderSecondaryAction" disabled="{{builderSubmitting}}">{{builderSecondaryText}}</button>
+      <button class="builder-primary-button" bindtap="handleBuilderPrimaryAction" loading="{{builderSubmitting}}" disabled="{{builderSubmitting}}">{{builderPrimaryText}}</button>
+    </view>
+  </view>
+</view>

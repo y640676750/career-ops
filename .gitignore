@@ -1,0 +1,54 @@
+# Personal data (user fills these)
+data/applications.md
+data/pipeline.md
+data/scan-history.tsv
+reports/*.md
+!reports/.gitkeep
+output/*
+!output/.gitkeep
+batch/logs/*
+!batch/logs/.gitkeep
+batch/batch-state.tsv
+batch/batch-input.tsv
+batch/tracker-additions/*.tsv
+!batch/tracker-additions/.gitkeep
+jds/*
+!jds/.gitkeep
+
+# User config and customization (never auto-updated)
+config/profile.yml
+portals.yml
+modes/_profile.md
+project.private.config.json
+.update-dismissed
+.update-lock
+
+# Generated
+.resolved-prompt-*
+.tmp-*
+*.tmp
+*.log
+node_modules/
+backend/node_modules/
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/storage/
+backend/*.log
+backend/tmp-*
+output/*
+!output/.gitkeep
+*.pdf
+
+# OS
+.DS_Store
+*.mov
+*.mp4
+
+# Claude Code local
+.claude/settings.local.json
+.claude/memory/
+career-dashboard
