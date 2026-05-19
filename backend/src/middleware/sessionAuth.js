@@ -1,3 +1,4 @@
+import { getActivationAccess } from '../data/activationStore.js';
 import { getSession } from '../data/sessionStore.js';
 
 function extractBearerToken(headerValue = '') {
@@ -39,5 +40,27 @@ export function requireSession(req, res, next) {
   }
 
   req.session = session;
+  return next();
+}
+
+export function requireActiveEntitlement(req, res, next) {
+  if (!req.session?.openId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Session token is required.'
+    });
+  }
+
+  const access = getActivationAccess(req.session.openId);
+  if (!access.isActive) {
+    return res.status(403).json({
+      status: 'error',
+      code: 'ACTIVATION_REQUIRED',
+      message: '当前为邀请内测，请先输入激活码解锁使用权限。',
+      access
+    });
+  }
+
+  req.activationAccess = access;
   return next();
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { env } from '../config/env.js';
 import { getPdfJob, getPdfQueue } from '../queue/pdfQueue.js';
 import { isRedisConfigured } from '../queue/redisConnection.js';
+import { requireActiveEntitlement, requireSession } from '../middleware/sessionAuth.js';
 import { buildPdfDownloadUrl, pdfFileExists, resolvePdfFilePath, sanitizeFileStem } from '../utils/fileStore.js';
 
 function buildBaseUrl(req) {
@@ -113,8 +114,8 @@ async function enqueuePdfRender(req, res, next) {
 export function createPdfRouter() {
   const router = Router();
 
-  router.post('/render', enqueuePdfRender);
-  router.post('/jobs', enqueuePdfRender);
+  router.post('/render', requireSession, requireActiveEntitlement, enqueuePdfRender);
+  router.post('/jobs', requireSession, requireActiveEntitlement, enqueuePdfRender);
 
   router.get('/jobs/:jobId', readJobStatus);
 

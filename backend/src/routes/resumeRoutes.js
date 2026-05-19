@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { env } from '../config/env.js';
 import { completeJob, createJob, failJob, getJob, listJobs } from '../data/jobStore.js';
-import { attachOptionalSession, requireSession } from '../middleware/sessionAuth.js';
+import { attachOptionalSession, requireActiveEntitlement, requireSession } from '../middleware/sessionAuth.js';
 import { getResumeQueue } from '../queue/resumeQueue.js';
 import { runLowMemoryTask } from '../services/lowMemoryTaskQueue.js';
 import { getJdImageUploadLimitBytes, jdImageUpload } from '../services/jdVisionService.js';
@@ -575,7 +575,7 @@ export function createResumeRouter() {
     });
   });
 
-  router.post('/builder/generate', requireSession, async (req, res, next) => {
+  router.post('/builder/generate', requireSession, requireActiveEntitlement, async (req, res, next) => {
     try {
       const payload = validateBuilderPayload(req.body);
       const queued = await runGuidedBuilderJob(req, payload);
@@ -605,7 +605,7 @@ export function createResumeRouter() {
     });
   });
 
-  router.post('/files/parse', requireSession, (req, res, next) => {
+  router.post('/files/parse', requireSession, requireActiveEntitlement, (req, res, next) => {
     resumeUpload.single('resumeFile')(req, res, async (error) => {
       try {
         if (error) {
@@ -652,7 +652,7 @@ export function createResumeRouter() {
     });
   });
 
-  router.post('/job-targets/vision', requireSession, (req, res, next) => {
+  router.post('/job-targets/vision', requireSession, requireActiveEntitlement, (req, res, next) => {
     jdImageUpload.single('jdImage')(req, res, async (error) => {
       try {
         if (error) {
@@ -700,7 +700,7 @@ export function createResumeRouter() {
     });
   });
 
-  router.post('/customize', async (req, res, next) => {
+  router.post('/customize', requireSession, requireActiveEntitlement, async (req, res, next) => {
     try {
       const payload = validatePayload(req.body);
       if (payload.options.async) {
@@ -722,7 +722,7 @@ export function createResumeRouter() {
     }
   });
 
-  router.post('/customize/async', async (req, res, next) => {
+  router.post('/customize/async', requireSession, requireActiveEntitlement, async (req, res, next) => {
     try {
       const payload = validatePayload({
         ...(req.body || {}),
@@ -743,7 +743,7 @@ export function createResumeRouter() {
     }
   });
 
-  router.post('/customize/batch', requireSession, async (req, res, next) => {
+  router.post('/customize/batch', requireSession, requireActiveEntitlement, async (req, res, next) => {
     try {
       const payload = validateBatchPayload(req.body);
       const queued = await runBatchCustomizationJob(req, payload);

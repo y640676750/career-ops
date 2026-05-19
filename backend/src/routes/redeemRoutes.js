@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireSession } from '../middleware/sessionAuth.js';
 import { getActivationAccess, redeemActivationCode } from '../data/activationStore.js';
+import { requireSession } from '../middleware/sessionAuth.js';
 
 function formatAccess(access) {
   return {
@@ -14,23 +14,21 @@ function formatAccess(access) {
 export function createRedeemRouter() {
   const router = Router();
 
-  router.use(requireSession);
-
-  router.get('/redeem/status', (req, res) => {
+  router.get('/redeem/status', requireSession, (req, res) => {
     res.json({
       status: 'ok',
       access: formatAccess(getActivationAccess(req.session.openId))
     });
   });
 
-  router.post('/redeem', (req, res, next) => {
+  router.post('/redeem', requireSession, (req, res, next) => {
     try {
       const code = typeof req.body?.code === 'string' ? req.body.code : '';
       const result = redeemActivationCode(req.session.openId, code);
 
       return res.json({
         status: 'ok',
-        message: `激活成功，已解锁 ${result.validDays} 天高级版。`,
+        message: `兑换成功，已解锁 ${result.validDays} 天高级版。`,
         code: {
           code: result.code,
           validDays: result.validDays

@@ -20,7 +20,7 @@ const DEFAULT_QUEUE_STATS = [
 
 const DELETED_RESULTS_STORAGE_KEY = 'careerOps.deletedResumeResults';
 const FREE_GENERATION_STORAGE_KEY = 'careerOps.freeGenerationUsage';
-const DAILY_FREE_GENERATION_LIMIT = 1;
+const DAILY_FREE_GENERATION_LIMIT = 0;
 
 const BUILDER_STEPS = [
   { key: 'basic', index: '01', label: '基本信息', title: '先告诉我们你是谁', hint: '只需要填写最基础的信息，简单白话就可以。' },
@@ -345,6 +345,7 @@ function buildBatchButtonText(state) {
   if (!state.isLoggedIn) return '先连接微信';
   if (state.uploadBusy) return '等待文件解析完成';
   if (state.builderSubmitting) return '等待母本生成完成';
+  if (!isPremiumAccessActive(state)) return '输入激活码解锁';
   if (!hasResumeData(state.resumeSource)) return '先上传或创建母本';
   if (!Array.isArray(state.targetJobs) || !state.targetJobs.length) return '先添加岗位';
   return state.isAbstractMode ? '开始整活' : '一键批量生成 →';
@@ -635,15 +636,29 @@ Page({
   noop() {},
 
   syncSessionState() {
-    const expiresAt = wx.getStorageSync('careerOps.sessionExpiresAt');
-    if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) {
+    const readStoredSession = () => {
+      const app = getApp();
+      return {
+        token: app.getSessionToken ? app.getSessionToken() : wx.getStorageSync('careerOps.sessionToken'),
+        user: getStoredUser(),
+        expiresAt: wx.getStorageSync('careerOps.sessionExpiresAt')
+      };
+    };
+
+    let session = readStoredSession();
+    const expiryMs = session.expiresAt ? new Date(session.expiresAt).getTime() : 0;
+    const expired = Boolean(expiryMs && expiryMs <= Date.now());
+    const incomplete = Boolean((session.user && !session.token) || (session.token && !session.user));
+
+    if (expired || incomplete) {
       clearSession();
+      session = readStoredSession();
     }
 
-    const user = getStoredUser();
+    const user = session.token ? session.user : null;
     const profile = user && user.profile ? user.profile : {};
     this.setPageData({
-      isLoggedIn: !!user,
+      isLoggedIn: Boolean(session.token && user),
       loginModeText: user && user.source === 'wechat' ? '微信已连接' : user ? '开发联调' : '未登录',
       userName: profile.nickName || '微信用户'
     });
@@ -666,7 +681,7 @@ Page({
       if (!options.silent) {
         wx.showToast({ title: '登录成功', icon: 'success' });
       }
-      await this.loadRedeemStatus();
+      await this.loadRedeemStatus({ silent: true });
       return true;
     } catch (error) {
       if (!options.silent) {
@@ -758,7 +773,13 @@ Page({
     }
   },
 
-  async loadRedeemStatus() {
+  async loadRedeemStatus(options = {}) {
+    const token = getApp().getSessionToken ? getApp().getSessionToken() : wx.getStorageSync('careerOps.sessionToken');
+    if (!token || !this.data.isLoggedIn) {
+      this.setPageData({ premiumAccessActive: false, premiumExpiresAt: '' });
+      return null;
+    }
+
     try {
       const response = await request({ url: '/api/v1/redeem/status' });
       const access = response.access || {};
@@ -766,15 +787,40 @@ Page({
         premiumAccessActive: access.isActive === true,
         premiumExpiresAt: access.expiresAt || ''
       });
+      return access;
     } catch (error) {
       if (isSessionInvalidError(error)) {
         clearSession();
         this.syncSessionState();
-        return;
+        return null;
       }
 
-      console.warn('[miniprogram] loadRedeemStatus failed:', error.message || error);
+      if (!options.silent) {
+        console.warn('[miniprogram] loadRedeemStatus failed:', error.message || error);
+      }
+      return null;
     }
+  },
+
+  async ensureInviteAccess(options = {}) {
+    const loggedIn = await this.ensureLoggedIn({ silent: true });
+    if (!loggedIn) {
+      if (!options.silent) {
+        wx.showToast({ title: '请先登录微信', icon: 'none' });
+      }
+      return false;
+    }
+
+    await this.loadRedeemStatus({ silent: true });
+    if (isPremiumAccessActive(this.data)) {
+      return true;
+    }
+
+    if (!options.silent) {
+      wx.showToast({ title: '请输入激活码解锁', icon: 'none' });
+    }
+    this.openRedeemModal();
+    return false;
   },
 
   async loadRemoteDashboard() {
@@ -967,9 +1013,8 @@ Page({
       this.handleCancelResumeUpload();
       return;
     }
-    const loggedIn = await this.ensureLoggedIn({ silent: true });
-    if (!loggedIn) {
-      wx.showToast({ title: '请先登录微信', icon: 'none' });
+    const hasAccess = await this.ensureInviteAccess();
+    if (!hasAccess) {
       return;
     }
 
@@ -1057,7 +1102,12 @@ Page({
       throw error;
     }
   },
-  handleOpenBuilder() {
+  async handleOpenBuilder() {
+    const hasAccess = await this.ensureInviteAccess();
+    if (!hasAccess) {
+      return;
+    }
+
     this.setPageData({ builderVisible: true });
   },
 
@@ -1122,9 +1172,8 @@ Page({
       return;
     }
 
-    const loggedIn = await this.ensureLoggedIn({ silent: true });
-    if (!loggedIn) {
-      wx.showToast({ title: '请先登录微信', icon: 'none' });
+    const hasAccess = await this.ensureInviteAccess();
+    if (!hasAccess) {
       return;
     }
 
@@ -1206,9 +1255,8 @@ Page({
 
   async handleChooseJdImage() {
     if (!this.data.jobSheetVisible || this.data.jdImageBusy) return;
-    const loggedIn = await this.ensureLoggedIn({ silent: true });
-    if (!loggedIn) {
-      wx.showToast({ title: '请先登录微信', icon: 'none' });
+    const hasAccess = await this.ensureInviteAccess();
+    if (!hasAccess) {
       return;
     }
 
@@ -1752,20 +1800,12 @@ Page({
 
   async handleBatchGenerate() {
     if (this.data.batchGenerating || !this.data.canGenerate) return;
-    const loggedIn = await this.ensureLoggedIn({ silent: true });
-    if (!loggedIn) {
-      wx.showToast({ title: '请先登录微信', icon: 'none' });
+    const hasAccess = await this.ensureInviteAccess();
+    if (!hasAccess) {
       return;
     }
 
-    const hasPremium = isPremiumAccessActive(this.data);
-    const freeUsage = this.refreshFreeGenerationUsage();
-    if (!hasPremium && freeUsage.count >= DAILY_FREE_GENERATION_LIMIT) {
-      this.openRedeemModal();
-      return;
-    }
-
-    return this.submitBatchGenerate(true, !hasPremium);
+    return this.submitBatchGenerate(true, false);
   },
 
   async submitBatchGenerate(allowAuthRetry = true, countFreeUsage = false) {

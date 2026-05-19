@@ -150,7 +150,7 @@
     <view class="redeem-header">
       <view>
         <text class="redeem-title">升级高级版</text>
-        <text class="redeem-subtitle">今日免费次数已达上限。添加主理人微信获取单日或包周激活码。</text>
+        <text class="redeem-subtitle">当前为邀请内测。添加主理人微信获取单日或包周激活码。</text>
       </view>
       <text class="redeem-close" bindtap="closeRedeemModal">关闭</text>
     </view>

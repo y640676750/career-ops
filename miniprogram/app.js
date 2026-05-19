@@ -1,6 +1,6 @@
 App({
   globalData: {
-    apiBaseUrl: 'https://api.myootdai.com'
+    apiBaseUrl: 'https://purecv.cn'
   },
 
   onLaunch() {
